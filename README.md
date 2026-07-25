@@ -2,7 +2,7 @@
 
 This repository contains an automated pipeline designed to extract raw event data from SND@LHC ROOT files, convert them into PyTorch tensors, run multiple Deep Learning models (Classification and Energy Reconstruction) on the data, and finally merge the predictions into easily accessible `.txt` and `.root` formats.
 
-The details can be reached from here: 
+The details can be reached from here: https://open.metu.edu.tr/handle/11511/119782
 
 ## 📌 Overview
 
