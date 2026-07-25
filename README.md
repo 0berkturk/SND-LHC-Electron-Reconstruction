@@ -2,12 +2,22 @@
 
 This repository contains an automated pipeline designed to extract raw event data from SND@LHC ROOT files, convert them into PyTorch tensors, run multiple Deep Learning models (Classification and Energy Reconstruction) on the data, and finally merge the predictions into easily accessible `.txt` and `.root` formats.
 
+The details can be reached from here: 
+
 ## 📌 Overview
 
 The pipeline executes the following workflow automatically via `run_pipeline.sh`:
+
 1. **Data Extraction:** Reads a list of `run_number` and `event_number` pairs, locates the corresponding `.root` files in EOS, applies predefined cuts, and converts the SciFi hit data into PyTorch `.pt` tensors using `root2pt.py`.
 2. **Deep Learning Inference:** Runs three distinct ResNet models (one for classification, two for energy reconstruction) on the extracted `.pt` tensors.
 3. **Consolidation:** Merges the output of all three models into a single tabular format and saves the final results as `final_results.txt` and `final_results.root` using `save_results.py`.
+
+---
+🧠 Models Overview
+This pipeline integrates three specific ResNet models trained for different reconstruction tasks. Each model's directory reflects its training configuration:
+Classification Model (resnet_v6_TBHadrons23_MCElectrons...): Designed for particle identification and classification. It was trained using 2023 Test Beam Hadrons alongside MC Electrons.
+Energy Reconstruction Model - 100 GeV (MC_electrons_ResNets_SciFi...100gev...): An energy regression model specifically trained on 100 GeV MC electrons. Recommended for low energies(<100 GeV) as the energy resolution is better.
+Energy Reconstruction Model - 400 GeV (log_input_more_data...400gev...): A robust energy regression model trained on 400 GeV MC electrons, utilizing logarithmic input scaling and an expanded dataset. Recommended for higher energies( > 100 GeV) as the energy resolution is better.
 
 ---
 
@@ -16,29 +26,75 @@ The pipeline executes the following workflow automatically via `run_pipeline.sh`
 Because the SND@LHC software (`sndsw`) and modern Deep Learning frameworks (PyTorch) often have conflicting Python versions and dependencies, this pipeline utilizes a **dual-environment approach**. The bash script automatically switches between them.
 
 ### 1. SNDSW Environment (For ROOT parsing)
+
 The pipeline automatically sources the required `sndsw` environment from CVMFS (`/cvmfs/sndlhc.cern.ch/SNDLHC-2025/Oct7/setUp.sh`) to access the `ROOT` and `SndlhcGeo` libraries. You do not need to install anything for this step if you are running on LXPLUS.
 
-### 2. Deep Learning Environment (Conda)
-You need an environment with standard machine learning and data processing libraries to run the inference and consolidation scripts. 
+### 2. Deep Learning Environment (Python)
+
+You need a Python environment with standard machine learning and data processing libraries to run the inference and consolidation scripts. **Whether you use Conda, a standard Python virtual environment (`venv`), or any other setup is not important, as long as you import the necessary libraries.**
 
 **Required Packages:**
-*   `torch` (PyTorch)
-*   `pandas`
-*   `numpy`
-*   `uproot`
-*   `awkward`
 
-**Using Your Own Environment:**
-By default, the script points to a Conda environment named `myenv`. **You are highly encouraged to use your own environment or virtualenv**, provided it contains the packages listed above. Simply update the `CONDA_ENV_NAME` variable inside `run_pipeline.sh` to match your environment's name.
+* `torch` (PyTorch)
+* `pandas`
+* `numpy`
+* `uproot`
+* `awkward`
+
+**Important Note:** Because environment setups vary from user to user, **you must change the environment activation code in `run_pipeline.sh` to match your personal setup.
 
 ---
 
 ## 🚀 How to Use
 
 ### Step 1: Prepare the Event List
+
 Create a text file (e.g., `events_list.txt`) containing the events you want to process. Format it with the `run_number` and `event_number` separated by a space, one pair per line:
 
 ```text
 10919 123456
 10919 123457
 10919 123458
+
+```
+
+### Step 2: Update User Configuration
+
+Open `run_pipeline.sh` and ensure the paths match your workspace. Look for the `USER CONFIGURATION` section and modify the environment activation commands to suit your setup:
+
+```bash
+# ==============================================================================
+# USER CONFIGURATION
+# ==============================================================================
+# Modify the lines below to activate your specific Python environment!
+# The default example uses Conda, but you must change this if you use venv or another manager.
+
+# Example for Conda:
+# source /path/to/your/conda.sh
+# conda activate myenv
+
+# Example for Python venv:
+# source /path/to/your/venv/bin/activate
+
+```
+
+*Note: Make sure the model directory paths (`MODEL_1_DIR`, etc.) point to the correct locations where your model scripts and checkpoints reside.*
+
+### Step 3: Run the Pipeline
+
+Execute the main bash script by passing your event list and your desired output directory.
+
+```bash
+./run_pipeline.sh events_list.txt /path/to/output_directory
+
+```
+
+---
+
+## 📁 Output Structure
+
+Once the pipeline finishes, your output directory will contain:
+
+1. **`[output_directory]_DL_processed/`**: A folder containing the raw `.pt` tensor files generated by `root2pt.py`.
+2. **`final_results.txt`**: A tab-separated text file containing the merged predictions from all models. Each model's prediction is prefixed with the model's name to prevent column overlaps.
+3. **`final_results.root`**: A ROOT file containing a tree named `dl_results` with the exact same data as the text file, written via Uproot for easy integration into standard HEP analysis workflows.
