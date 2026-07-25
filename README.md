@@ -13,14 +13,15 @@ The pipeline executes the following workflow automatically via `run_pipeline.sh`
 3. **Consolidation:** Merges the output of all three models into a single tabular format and saves the final results as `final_results.txt` and `final_results.root` using `save_results.py`.
 
 ---
-🧠 Models Overview
+## 🧠 Models Overview
 
 This pipeline integrates three specific ResNet models trained for different reconstruction tasks. Each model's directory reflects its training configuration:
-Classification Model (resnet_v6_TBHadrons23_MCElectrons...): Designed for particle identification and classification. It was trained using 2023 Test Beam Hadrons alongside MC Electrons.
 
-Energy Reconstruction Model - 100 GeV (MC_electrons_ResNets_SciFi...100gev...): An energy regression model specifically trained on 100 GeV MC electrons. Recommended for low energies(<100 GeV) as the energy resolution is better.
+**Classification Model (resnet_v6_TBHadrons23_MCElectrons...)**: Designed for particle identification and classification. It was trained using 2023 Test Beam Hadrons alongside MC Electrons.
 
-Energy Reconstruction Model - 400 GeV (log_input_more_data...400gev...): A robust energy regression model trained on 400 GeV MC electrons, utilizing logarithmic input scaling and an expanded dataset. Recommended for higher energies( > 100 GeV) as the energy resolution is better.
+**Energy Reconstruction Model - 100 GeV (MC_electrons_ResNets_SciFi...100gev...)**: An energy regression model specifically trained on 100 GeV MC electrons. Recommended for low energies(<100 GeV) as the energy resolution is better.
+
+**Energy Reconstruction Model - 400 GeV (log_input_more_data...400gev...)**: A robust energy regression model trained on 400 GeV MC electrons, utilizing logarithmic input scaling and an expanded dataset. Recommended for higher energies( > 100 GeV) as the energy resolution is better.
 
 ---
 
